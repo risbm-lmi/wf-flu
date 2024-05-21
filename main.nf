@@ -185,6 +185,19 @@ process processType {
     """
 }
 
+process filterConsensus {
+    label "wfflu"
+    cpus 1
+    input:
+        tuple val(meta), path("depth.txt")
+        tuple val(meta), path ("draft.consensus.fasta")
+    output:
+        tuple val(meta), path("filtered_cons.fasta")
+    script:
+    """
+    filtered_consensus.py -d depth.txt -c draft.consensus.fasta -t ${params.tresh_lvl}
+    """
+}
 
 process prepNextclade {
     label "wfflu"
@@ -365,9 +378,12 @@ workflow pipeline {
         for_draft = variants.join(coverage)
 
         draft = makeConsensus(for_draft, reference)
+        
         flu_type = typeFlu(draft, blastdb)
 
         processed_type = processType(flu_type.typing)
+
+        filt_cons = filterConsensus(coverage, draft)
 
 
         nextclade_prep = prepNextclade(
@@ -396,6 +412,7 @@ workflow pipeline {
         | join(coverage)
         | join(flu_type.typing) 
         | join(processed_type)
+        | join(filt_cons)
 
         // collect results into a directory for the sample directory to avoid collisions
         ch_results_for_report = ch_per_sample_results
@@ -435,6 +452,8 @@ workflow pipeline {
             coverage
             | map { meta, depth -> [depth, "$meta.alias/coverage"]},
             draft
+            | map { meta, fa -> [fa, "$meta.alias/consensus"]},
+            filt_cons
             | map { meta, fa -> [fa, "$meta.alias/consensus"]},
             flu_type.typing
             | map { meta, json -> [json, "$meta.alias/typing"]}
