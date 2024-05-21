@@ -17,7 +17,8 @@
 | min_qscore | number | Minimum read quality score for fastcat. | Any reads which are below quality score of 9 are not used by default. This parameter allows you to customise that. For more information on quality scores please see this blog post: https://labs.epi2me.io/quality-scores | 9 |
 | downsample | integer | Number of reads to downsample to in each direction, leave blank for no downsampling. | The workflow for each segment will first filter reads to include only those that are ±10% of the segment length before downsampling to the specified integer (taking an even split from forward and reverse reads). This downsampled data is then used in variant calling. |  |
 | medaka_consensus_model | string | The name of a Medaka model to use. By default the workflow will select an appropriate Medaka model from the basecaller configuration provided. Entering a name here will override the automated selection and use the Medaka model named here. | The workflow will attempt to map the basecalling model used to a suitable Medaka consensus model. You can override this by providing a model with this option instead. |  |
-| rbk | boolean | Set when using data created with the RBK protocol. | This prevents shorter reads being filtered out and also turns off downsampling as this is not appropriate for the shorter reads generated with RBK. | False |
+| rbk | boolean | Set when using data created with the RBK protocol. | This prevents shorter reads being filtered out and also turns off downsampling as this is not appropriate for the shorter reads generated with RBK. | False |  |
+| tresh_lvl | integer | Specify when you want each sample to obtain a specific consensus consisting only of segments whose average coverage is above this parameter. | Specify parameter for process, which creates a filtered consensus file, without any segments with low representation in this sample. | 10 |
 
 
 ### Miscellaneous Options
